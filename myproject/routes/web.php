@@ -28,13 +28,12 @@ Route::get('/otpAuth', [UserController::class, 'showOtp'])->name('admin.showOtp'
 Route::post('/otpAuth', [UserController::class, 'otpProcess'])->name('admin.otpAuth');
 
 // 회원가입
-Route::get('/signup', [UserController::class, 'signUpForm'])->name('admin.signup')->middleware('basic_auth');
+Route::get('/signup', [UserController::class, 'signUpForm'])->name('admin.signup');
 Route::post('/signup', [UserController::class, 'signUpProcess'])->name('admin.signup2');
 
 Route::get('/user', [UserController::class, 'showUser'])->name('admin.user')->middleware('basic_auth');
 
 Route::get('/member/detail', [UserController::class, 'detail'])->name('admin.detail')->middleware('basic_auth');
-
 Route::get('/member/mypage', [UserController::class, 'myPage'])->name('admin.mypage')->middleware('basic_auth');
 
 Route::post('/member/otpReset', [UserController::class, 'otpReset'])->name('admin.otpReset');

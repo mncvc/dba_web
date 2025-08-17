@@ -23,7 +23,7 @@ class Common
 
             $rgLoginLog = [
                 'admin_no'          => $userNo,
-                'admin_login_ip'    => $_SERVER["REMOTE_ADDR"],
+//                 'admin_login_ip'    => $_SERVER["REMOTE_ADDR"],
                 'admin_login_flag'  =>  $state
             ];
             $nResult = $this->dbConnection->table('admin_login_log_'.$dtYear)->insertGetId($rgLoginLog);

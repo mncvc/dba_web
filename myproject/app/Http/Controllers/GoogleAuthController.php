@@ -35,13 +35,13 @@ class GoogleAuthController extends Controller
             $nResult = $CAdminInfoMasterDb
                 ->table('admin_google_auth_list')
                 ->insertGetId($rgAdminGoogleAuth );
-                
+
             // 체크
         }else $secret = $rgAdminGoogleAuth['secret_key'];
 
         // QR 코드 생성 (Google Authenticator로 스캔할 수 있는 URL)
         $qrCodeUrl = $google2fa->getQRCodeUrl(
-            'KMS_관리자',
+            'DBA WEB SERVICE',
             $rgSession['admin_id'],
             $secret
         );

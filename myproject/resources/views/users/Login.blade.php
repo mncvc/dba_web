@@ -81,7 +81,7 @@
 
 <body>
     <div class="login-container">
-        <h1 class="login-title">KMS 관리자 로그인</h1>
+        <h1 class="login-title">DBA WEB SERVICE</h1>
         <form action="login" method="POST">
             @csrf
             <div>

@@ -18,8 +18,7 @@ class BasicAuth
      * @return \Illuminate\Http\Response|\Illuminate\Http\RedirectResponse
      */
     public function handle(Request $request, Closure $next)
-    {
-
+  {
         $strPath = trim($request->getPathInfo());
         $rgPath = explode('/',$strPath);
         $strThisURI = substr($strPath,0,strrpos($strPath,'/'));
@@ -29,12 +28,10 @@ class BasicAuth
         }
 
         $rgFreePage = [
-            '/home',
-            '/admin/change_password'
+            '/home'
         ];
 
         if(Auth::check() == false){
-
             return redirect('login');
         }
 
@@ -42,7 +39,7 @@ class BasicAuth
 //            return redirect('admin');
 //        }
 
-
         return $next($request);
     }
+
 }

@@ -29,7 +29,7 @@ class UserController extends Controller
         if(Auth::check()){
             return redirect('admin');
         }
-        return view('admin.login',['result'=>1,'message'=>'']);
+        return view('users.Login',['result'=>1,'message'=>'']);
     }
 
 // 로그인
@@ -68,10 +68,10 @@ class UserController extends Controller
 
             $cCommon = new Common($CAdminInfoMasterDb);
 
-            $rstAdminInfo = $CAdminInfoMasterDb->table('admin_info_new')
+            $rstAdminInfo = $CAdminInfoMasterDb->table('admin_info')
                 ->select('*')
-                ->join('admin_private_info','admin_info_new.admin_no','=','admin_private_info.admin_no')
-                ->where('admin_info_new.admin_id',$rgParams->get('userId'));
+                ->join('admin_private_info','admin_info.admin_no','=','admin_private_info.admin_no')
+                ->where('admin_info.admin_id',$rgParams->get('userId'));
 
             $rgAdminInfo = collect($rstAdminInfo->first());
 
@@ -80,7 +80,7 @@ class UserController extends Controller
                 $this->rstLogData['status'] = 'fail';
                 $this->rstLogData['content'] = '[회원번호: ' . $this->rstLogData['user_no'] . '] - 로그인 실패 (회원정보 미일치)';
 
-                return view('admin.login',['result'=>2, 'message'=>'입력한 회원 정보가 정확하지 않습니다.1']);
+                return view('users.Login',['result'=>2, 'message'=>'입력한 회원 정보가 정확하지 않습니다.1']);
             }
 
             $this->rstLogData['user_no'] = $rgAdminInfo['admin_no'];
@@ -104,22 +104,22 @@ class UserController extends Controller
                 $this->rstLogData['status'] = 'fail';
                 $this->rstLogData['content'] = '[회원번호: ' . $this->rstLogData['user_no'] . '] - 로그인 실패 (회원상태 : ' . $rgAdminInfo['admin_state'] . ')';
 
-                return view('admin.login',['result'=>2, 'message'=>$strErrMessage]);
+                return view('users.Login',['result'=>2, 'message'=>$strErrMessage]);
             }
 
             if($rgAdminInfo['admin_password'] !== $strEncPassword){
                 // 로그인 실패
                 if($cCommon->fnLoginLog($rgAdminInfo['admin_no'], 'N') === 0){
-                    return view('admin.login',['result'=>2, 'message'=>'로그 작성 실패']);
+                    return view('users.Login',['result'=>2, 'message'=>'로그 작성 실패']);
                 }
 
                 if($cCommon->fnCheckLoginLog($rgAdminInfo['admin_no']) === 0){
-                    return view('admin.login',['result'=>2, 'message'=>'관리자 상태 체크 실패']);
+                    return view('users.Login',['result'=>2, 'message'=>'관리자 상태 체크 실패']);
                 }
                 $this->rstLogData['status'] = 'fail';
                 $this->rstLogData['content'] = '[회원번호: ' . $this->rstLogData['user_no'] . '] - 로그인 실패 (패스워드 미일치)';
 
-                return view('admin.login',['result'=>2, 'message'=>'입력한 회원 정보가 정확하지 않습니다.2']);
+                return view('users.Login',['result'=>2, 'message'=>'입력한 회원 정보가 정확하지 않습니다.2']);
             }
 
             $chrGoogleAuthFlag=$rgAdminInfo['google_auth_flag'];
@@ -141,14 +141,14 @@ class UserController extends Controller
             $this->rstLogData['content'] = '[회원번호: ' . $this->rstLogData['user_no'] . '] - 로그인 성공 (1차)';
 
             $request->session()->put($rgSessionAdminInfo);
-            return view('admin.otpAuth');
+            return view('users.OtpAuth');
 
         }catch(Exception $e){
             $request->session->flush();
             $this->rstLogData['status'] = 'fail';
             $this->rstLogData['content'] = '[회원번호: ' . $this->rstLogData['user_no'] . '] - 로그인 실패';
 
-            return view('admin.login',['result'=>2, 'message'=>$e]);
+            return view('users.Login',['result'=>2, 'message'=>$e]);
         }finally{
 
             $cLog->fnSetLog($this->rstLogData);
@@ -157,7 +157,7 @@ class UserController extends Controller
     }
 
     public function showOtp(Request $request){
-        return view('admin.otpAuth');
+        return view('users.OtpAuth');
     }
 // otp QR코드 생성
     public function createQr(Request $request)
@@ -201,9 +201,9 @@ class UserController extends Controller
             $secret
         );
 
-        unset($google2fa);
+//         unset($google2fa);
         // 사용자가 QR 코드를 스캔할 수 있도록 이미지 생성
-        return view('admin.auth', ['qrCodeUrl' => $qrCodeUrl, 'secret' => $secret]);
+        return view('users.Auth', ['qrCodeUrl' => $qrCodeUrl, 'secret' => $secret]);
     }
 // otp 인증
     public function otpProcess(Request $request)
@@ -237,10 +237,10 @@ class UserController extends Controller
 
             if ($valid) {
                 // OTP가 유효할 경우
-                $rstAdminInfo = $CAdminInfoMasterDb->table('admin_info_new')
+                $rstAdminInfo = $CAdminInfoMasterDb->table('admin_info')
                     ->select('*')
-                    ->join('admin_private_info','admin_info_new.admin_no','=','admin_private_info.admin_no')
-                    ->where('admin_info_new.admin_id',$rgSession['admin_id'] );
+                    ->join('admin_private_info','admin_info.admin_no','=','admin_private_info.admin_no')
+                    ->where('admin_info.admin_id',$rgSession['admin_id'] );
 
                 $rgAdminInfo = collect($rstAdminInfo->first());
 
@@ -248,7 +248,7 @@ class UserController extends Controller
                     $this->rstLogData['status'] = 'fail';
                     $this->rstLogData['content'] = '[회원번호: ' . $this->rstLogData['user_no'] . '] - 로그인 실패 (회원정보 미존재)';
 
-                    return view('admin.login',['result'=>2, 'message'=>'존재하지 않는 아이디 입니다.']);
+                    return view('users.Login',['result'=>2, 'message'=>'존재하지 않는 아이디 입니다.']);
                 }
 
                 $salt = base64_decode($rgAdminInfo['admin_salt']);
@@ -294,7 +294,7 @@ class UserController extends Controller
             $cCommon->fnLoginLog( $rgSession['admin_no'], 'N');
             $cCommon->fnCheckLoginLog($rgSession['admin_no']);
 
-            return view('admin.login',['result'=>2, 'message'=>'오류 발생']);
+            return view('users.Login',['result'=>2, 'message'=>'오류 발생']);
         } finally {
             $cLog->fnSetLog($this->rstLogData);
         }
@@ -361,7 +361,7 @@ class UserController extends Controller
 
 // 회원 가입 페이지
     public function signUpForm(){
-        return view('admin.signup');
+        return view('users.UserSignUp');
     }
 
 /*
@@ -386,8 +386,6 @@ class UserController extends Controller
                 'userId'        => ['required','max:20'],
                 'password'      => ['required'],
                 'userName'      => ['required', 'alpha'],
-                'userDepart'    => ['required', 'max:2'],
-                'position'      => ['required'],
                 'employeeNo'   => ['required', 'max:6'],
             ]);
 
@@ -404,8 +402,7 @@ class UserController extends Controller
                 $this->rstLogData['status'] = 'fail';
                 $this->rstLogData['content'] .=  $cLog->fnSetLogMessage("", "r", array('error' => "회원생성 실패 입력값 이상"));
 
-
-                return view('admin.popUpResult', ['message'=>'회원가입 실패']);
+                return view('layouts.popUpResult', ['message'=>'회원가입 실패']);
             }
 
             // DB 연결
@@ -413,7 +410,7 @@ class UserController extends Controller
             // DB 체크
             if (empty($CAdminInfoMasterDb)) {
                 $CAdminInfoMasterDb->rollback();
-                return view('admin.popUpResult', ['message'=>'회원가입 실패']);
+                return view('layouts.popUpResult', ['message'=>'회원가입 실패']);
             }
 
             // 데이터 존재 여부 체크 (중복가입)
@@ -429,7 +426,7 @@ class UserController extends Controller
                 $this->rstLogData['content'] .=  $cLog->fnSetLogMessage("", "r", array('error' => "중복계정"));
 
                 $CAdminInfoMasterDb->rollback();
-                return view('admin.popUpResult', ['message'=>'회원가입 실패']);
+                return view('layouts.popUpResult', ['message'=>'회원가입 실패']);
             }
 
             // 패스워드 생성
@@ -437,19 +434,17 @@ class UserController extends Controller
             $strEncryptPwd = base64_encode(sodium_crypto_auth($rgData['password'], $salt));
 
             // 연락처 암호화
-            $strEncryptPhone = encrypt($rgData['phone']);
+//             $strEncryptPhone = encrypt($rgData['phone']);
 
             $CAdminInfoMasterDb->beginTransaction();
 
             $rgAdminInfo = [
                 'admin_id'      => $rgData['userId'],
-                'admin_level'   => '3',
-                'depart_code'   => $rgData['userDepart'],
-                'position_code'  =>  $rgData['position']
+                'auth_level'   => '3'
             ];
 
             $nResult = $CAdminInfoMasterDb
-                ->table('admin_info_new')
+                ->table('admin_info')
                 ->insertGetId($rgAdminInfo);
 
             $rgAdminPrivateInfo = [
@@ -457,8 +452,6 @@ class UserController extends Controller
                 'admin_name'        => $rgData['userName'],
                 'admin_password'    => $strEncryptPwd,
                 'admin_salt'        => base64_encode($salt),
-                'admin_allow_ip'    => '0.0.0.0',
-                'admin_mobile'       => $rgData['phone'],
                 'employee_no'       => $rgData['employeeNo']
             ];
 
@@ -473,7 +466,7 @@ class UserController extends Controller
 
 //            return redirect('user');
 
-            return view('admin.popUpResult', ['message'=>'회원가입']);
+            return view('welcome');
         }catch(Exception $e){
             echo $e;
         } finally {
@@ -491,7 +484,7 @@ class UserController extends Controller
             if (empty($CAdminInfoMasterDb)) {
                 throw new Exception('Err');
             }
-            $rgResult = $CAdminInfoMasterDb->table('admin_info_new as a')->join('admin_private_info as b','a.admin_no','=','b.admin_no')->select('a.*','b.admin_name')->limit(10)->get();
+            $rgResult = $CAdminInfoMasterDb->table('admin_info as a')->join('admin_private_info as b','a.admin_no','=','b.admin_no')->select('a.*','b.admin_name')->limit(10)->get();
 
             return view('admin.user', ['rgData' => $rgResult, 'title' => '회원 정보']);
         }catch(Exception $e){
@@ -511,7 +504,7 @@ class UserController extends Controller
                 throw new Exception('Err');
             }
 
-            $rgData = $CAdminInfoMasterDb->table('admin_info_new as a')->join('admin_private_info as b','a.admin_no','=','b.admin_no')->select('*')->where('a.admin_no','=',$userNo)->first();
+            $rgData = $CAdminInfoMasterDb->table('admin_info as a')->join('admin_private_info as b','a.admin_no','=','b.admin_no')->select('*')->where('a.admin_no','=',$userNo)->first();
 
             if(empty($rgData)){
                 dd('err');
@@ -538,7 +531,7 @@ class UserController extends Controller
                 throw new Exception('Err');
             }
 
-            $rgData = $CAdminInfoMasterDb->table('admin_info_new as a')->join('admin_private_info as b','a.admin_no','=','b.admin_no')->select('*')->where('a.admin_no','=',$rgSession['admin_no'])->first();
+            $rgData = $CAdminInfoMasterDb->table('admin_info as a')->join('admin_private_info as b','a.admin_no','=','b.admin_no')->select('*')->where('a.admin_no','=',$rgSession['admin_no'])->first();
 
             if(empty($rgData)){
                 dd('err');

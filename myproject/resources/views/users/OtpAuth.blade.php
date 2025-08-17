@@ -79,7 +79,7 @@
 </head>
 <body>
 <div class="login-container">
-    <h1 class="login-title">KMS 관리자 OTP </h1>
+    <h1 class="login-title">DBA WEB SERVICE 관리자 OTP </h1>
     <form action="otpAuth" method="POST">
         @csrf
         <div>
